@@ -250,9 +250,13 @@ body::after {
     transition: var(--transition-smooth);
 }
 
+
+
 .task-input:focus {
     border-bottom-color: #fff;
 }
+
+
 
 .task-select, .assignee-input, .task-edit-input {
     background: rgba(255, 255, 255, 0.05);
@@ -267,6 +271,12 @@ body::after {
 
 .task-select:hover, .assignee-input:hover {
     background: rgba(255, 255, 255, 0.1);
+}
+
+.task-select option{
+    color: var(--text-primary); 
+    background: black;
+    border: none;
 }
 
 .add-btn {
