@@ -1,0 +1,46 @@
+[
+  {
+    "id": "55a2bfd1-b630-45dc-b413-644478192bf7",
+    "username": "alex@gmail.com",
+    "googleId": null,
+    "isVerified": false,
+    "createdAt": "2025-12-23T15:25:35.314Z"
+  },
+  {
+    "id": "01922801-06b0-415c-9cc1-a83f5ae77197",
+    "username": "allomohangealex@gmail.com",
+    "googleId": null,
+    "isVerified": false,
+    "createdAt": "2025-12-23T15:26:06.479Z"
+  },
+  {
+    "id": "a255405a-7595-4385-b12d-386b380574af",
+    "username": "saurakidev@gmail.com",
+    "googleId": null,
+    "isVerified": true,
+    "createdAt": "2025-12-23T15:37:53.818Z"
+  },
+  {
+    "id": "badb8306-5e98-4457-b137-e037b420aa4d",
+    "username": "ange@gmail.com",
+    "googleId": null,
+    "isVerified": false,
+    "createdAt": "2025-12-23T15:56:33.105Z"
+  },
+  {
+    "id": "1e3bd9ae-fba3-42d1-9fd2-923fb764f7f5",
+    "username": "alex4@gmail.com",
+    "googleId": null,
+    "isVerified": false,
+    "createdAt": "2025-12-23T16:05:16.930Z",
+    "password": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+  },
+  {
+    "id": "bd184a2c-bc00-4689-9f89-b15e2daeb319",
+    "username": "toto@gmail.com",
+    "googleId": null,
+    "isVerified": false,
+    "createdAt": "2025-12-24T09:42:04.127Z",
+    "password": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+  }
+]
