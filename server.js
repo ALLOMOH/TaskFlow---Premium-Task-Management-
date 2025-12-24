@@ -12,15 +12,6 @@ const JWT_SECRET = 'dev_secret_key'; // For signed cookies if needed, or just se
 const PORT = 3000;
 const AUTH_COOKIE = 'taskflow_auth';
 
-// --- Mailer Configuration ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'allomohangealex@gmail.com',
-        pass: 'Sauraki1999' // Note: If 2FA is on, use an App Password here
-    }
-});
-
 const app = express();
 
 // Temporary in-memory OTP store: { email: { code, expires } }
