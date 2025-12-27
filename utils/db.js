@@ -100,11 +100,16 @@ async function findUserByEmail(email) {
     return users.find(u => u.username === email);
 }
 
+async function getUserById(id) {
+    const users = await readJSON(USERS_FILE) || [];
+    return users.find(u => u.id === id);
+}
+
 // ... rest of the file (deleteUser, getUserTasks, etc.)
 
 async function deleteUser(userId) {
     let users = await readJSON(USERS_FILE) || [];
-    users = users.filter(u => u.id !== userId);
+    users = users.filter(u => u.id !== userId)
     await writeJSON(USERS_FILE, users);
     
     const userFile = path.join(DATA_DIR, `${userId}.json`);
@@ -141,7 +146,7 @@ module.exports = {
     authenticateUser,
     findUserByGoogleId,
     findUserByEmail,
-// ... existing exports
+    getUserById,
     deleteUser,
     getUserTasks,
     saveUserTasks,

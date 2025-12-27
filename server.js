@@ -134,6 +134,14 @@ app.get('/api/auth/me', requireAuth, async (req, res) => {
     res.json({ id: req.userId });
 });
 
+app.get('/api/users/', requireAuth, async (res) => {
+    res.json({ users: await db.getAllUsers() });    
+})
+
+app.get('/api/users/:id', requireAuth, async (req, res) => {
+    res.json({ user: await db.getUserById(req.params.id) });
+})
+
 app.delete('/api/auth/me', requireAuth, async (req, res) => {
     // ... existing delete logic
     try {

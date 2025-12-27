@@ -104,10 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleLoginSuccess(user) {
+        console.log('object user login:', user);
         currentUser = user;
         hideLandingAndShowApp();
         if(userProfile) userProfile.style.display = 'flex';
         fetchTasks();
+        fetchUser(user.id);
         switchView('dashboard');
     }
 
@@ -326,6 +328,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             console.error('Failed to fetch tasks', e);
+        }
+    }
+    function removeGmailAddresses(username){
+        
+       
+        const gmailRegex = "@gmail.com";
+        
+        return username.replace(gmailRegex, '');
+    }
+
+
+    async function fetchUser(id){
+        try {
+            const res = await fetch(`/api/users/${id}`)
+            console.log( 'user res:', res)
+            if (res.ok) {
+                user = await res.json();
+                const username = removeGmailAddresses(user.user.username);
+                console.log('username:', username);
+                
+                document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
+                document.getElementById('user-name-display').textContent = username;
+                renderTasks();
+                renderDashboard(); // Initial dashboard render
+            }
+        } catch (e) {
+            console.error('Failed to fetch users', e);
         }
     }
 
