@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleLoginSuccess(user) {
-        console.log('object user login:', user);
+  
         currentUser = user;
         hideLandingAndShowApp();
         if(userProfile) userProfile.style.display = 'flex';
@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleLoginSuccess(data.user);
                     usernameInput.value = '';
                     passwordInput.value = '';
+                    document.location.reload();
                 } else {
                     alert(data.error || 'Authentication failed');
                 }

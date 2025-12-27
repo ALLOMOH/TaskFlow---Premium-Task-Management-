@@ -11,9 +11,10 @@
   {
     "id": 1766843176658,
     "content": "good job",
-    "status": "in-progress",
+    "status": "done",
     "tag": "Design",
     "assignee": "",
-    "startedAt": 1766843179632
+    "startedAt": 1766843179632,
+    "completedAt": 1766869070338
   }
 ]
