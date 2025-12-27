@@ -126,6 +126,14 @@ async function saveUserTasks(userId, tasks) {
     await writeJSON(userFile, tasks);
 }
 
+async function getAdminStats() {
+    const users = await readJSON(USERS_FILE) || [];
+    return {
+        totalUsers: users.length,
+        verifiedUsers: users.filter(u => u.isVerified).length
+    };
+}
+
 module.exports = {
     init,
     createUser,
@@ -133,7 +141,9 @@ module.exports = {
     authenticateUser,
     findUserByGoogleId,
     findUserByEmail,
+// ... existing exports
     deleteUser,
     getUserTasks,
-    saveUserTasks
+    saveUserTasks,
+    getAdminStats
 };

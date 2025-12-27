@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-glass: rgba(255, 255, 255, 0.08);
+            --surface-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --radius-md: 20px;
+            --gradient-primary: linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--surface-glass);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            text-align: center;
+        }
+
+        h1 { margin-bottom: 2rem; font-size: 2rem; }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.02); }
+
+        .stats-view { display: none; }
+        .stats-view.active { display: block; }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+            font-size: 1.2rem;
+        }
+
+        .error { color: #ff4444; margin-top: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="login-section" class="card">
+            <h1>Admin Access</h1>
+            <div class="form-group">
+                <input type="password" id="admin-pass" placeholder="Enter Admin Password">
+            </div>
+            <button id="login-btn">Unlock Dashboard</button>
+            <p class="error" id="login-error">Invalid Password</p>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="card stats-view">
+            <h1>System Overview</h1>
+            <div class="stat-row">
+                <span>Total Users</span>
+                <span id="total-users">-</span>
+            </div>
+            <div class="stat-row">
+                <span>Verified Users</span>
+                <span id="verified-users">-</span>
+            </div>
+            <button onclick="logout()" style="margin-top: 2rem; background: rgba(255,255,255,0.1);">Lock Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('login-btn');
+        const passInput = document.getElementById('admin-pass');
+        const loginSection = document.getElementById('login-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const errorMsg = document.getElementById('login-error');
+
+        loginBtn.addEventListener('click', async () => {
+            const password = passInput.value;
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                if (res.ok) {
+                    loadStats();
+                } else {
+                    errorMsg.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('total-users').textContent = data.totalUsers;
+                    document.getElementById('verified-users').textContent = data.verifiedUsers;
+                    
+                    loginSection.style.display = 'none';
+                    dashboardSection.classList.add('active');
+                } else {
+                    // Token invalid or expired
+                    loginSection.style.display = 'block';
+                    dashboardSection.classList.remove('active');
+                }
+            } catch (e) {
+                console.error(e);
+                loginSection.style.display = 'block';
+                dashboardSection.classList.remove('active');
+            }
+        }
+
+        function logout() {
+            document.cookie = "admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            location.reload();
+        }
+
+        // Auto-check on load
+        loadStats();
+    </script>
+</body>
+</html>

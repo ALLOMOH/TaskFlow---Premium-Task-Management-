@@ -299,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }
+        renderTimers();
     }
 
     function updateStat(id, value) {
@@ -548,6 +549,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const taskId = parseInt(draggable.dataset.id);
         const task = tasks.find(t => t.id === taskId);
         if (task && task.status !== newStatus) {
+            // Timer Logic
+            if (newStatus === 'in-progress' && !task.startedAt) {
+                task.startedAt = Date.now();
+                delete task.completedAt;
+            } else if (newStatus === 'done') {
+                 if (!task.completedAt) task.completedAt = Date.now();
+            } else if (newStatus === 'todo') {
+                 delete task.completedAt;
+                 delete task.startedAt; // Reset if moved back to todo
+            }
+
             task.status = newStatus;
             saveTasks();
             renderTasks(); 
@@ -571,6 +583,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (addTodoBtn) addTodoBtn.addEventListener('click', addTask);
     if (todoInput) todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+
+    // --- Timer Logic ---
+    function renderTimers() {
+        const timerList = document.getElementById('timer-list');
+        if (!timerList) return;
+        timerList.innerHTML = '';
+
+        const activeTasks = tasks.filter(t => t.status === 'in-progress' && t.startedAt);
+        const doneTasks = tasks.filter(t => t.status === 'done' && t.completedAt && t.startedAt).slice(0, 3);
+
+        if (activeTasks.length === 0 && doneTasks.length === 0) {
+            timerList.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.9rem; padding: 0.5rem;">No active timers</div>';
+            return;
+        }
+
+        // Render Active
+        activeTasks.forEach(task => {
+            const el = document.createElement('div');
+            el.className = 'timer-item active';
+            el.dataset.start = task.startedAt;
+            el.style.cssText = 'background: rgba(43,210,255,0.1); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;';
+            el.innerHTML = `
+                <span style="font-size: 0.9rem; font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 60%;">${escapeHtml(task.content)}</span>
+                <span class="time-display" style="font-family: monospace; font-size: 1.1rem; color: #2BD2FF;">00:00</span>
+            `;
+            timerList.appendChild(el);
+        });
+
+        // Render Done (Static)
+        doneTasks.forEach(task => {
+            const duration = task.completedAt - task.startedAt;
+            const el = document.createElement('div');
+            el.style.cssText = 'background: rgba(43,255,136,0.1); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; opacity: 0.8;';
+            el.innerHTML = `
+                <span style="font-size: 0.9rem; font-weight: 500; text-decoration: line-through; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 60%;">${escapeHtml(task.content)}</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: #2BFF88;">${formatDuration(duration)}</span>
+            `;
+            timerList.appendChild(el);
+        });
+    }
+
+    function formatDuration(ms) {
+        if (ms < 0) ms = 0;
+        const seconds = Math.floor((ms / 1000) % 60);
+        const minutes = Math.floor((ms / (1000 * 60)) % 60);
+        const hours = Math.floor(ms / (1000 * 60 * 60));
+        return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
+    }
+
+    function updateLiveTimers() {
+        const activeTimers = document.querySelectorAll('.timer-item.active');
+        activeTimers.forEach(el => {
+             const start = parseInt(el.dataset.start);
+             const now = Date.now();
+             const display = el.querySelector('.time-display');
+             if(display) display.textContent = formatDuration(now - start);
+        });
+    }
+
+    setInterval(updateLiveTimers, 1000);
 
     // Start
     init();

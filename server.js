@@ -7,8 +7,10 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const db = require('./utils/db');
 
+require('dotenv').config();
+
 // In production, use dotenv
-const JWT_SECRET = 'dev_secret_key'; // For signed cookies if needed, or just secure IDs
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key'; // For signed cookies if needed, or just secure IDs
 const PORT = 3000;
 const AUTH_COOKIE = 'taskflow_auth';
 
@@ -65,6 +67,7 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await db.authenticateUser(username, password);
+
         
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -102,12 +105,16 @@ app.get('/auth/google/callback', async (req, res) => {
     if (!user) {
         try {
             user = await db.createUser(mockProfile.email, null, mockProfile.id);
+            res.cookie(AUTH_COOKIE, user.id, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+            res.redirect('/'); // Back to app
         } catch (e) {
              // User exists with this email?
              user = await db.findUserByEmail(mockProfile.email);
              if (user) {
                  // Merge: In real app we'd update their googleId here.
                  // For now, just log them in.
+                 res.cookie(AUTH_COOKIE, user.id, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+                 res.redirect('/'); // Back to app
              } else {
                  return res.redirect('/?error=creation_failed');
              }
@@ -136,6 +143,33 @@ app.delete('/api/auth/me', requireAuth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete account' });
     }
+});
+
+// --- Admin Routes ---
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // CHANGE THIS IN PRODUCTION
+const ADMIN_COOKIE = 'admin_token';
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        // In real app, sign a JWT. Here simple value.
+        res.cookie(ADMIN_COOKIE, 'valid_admin', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ error: 'Invalid password' });
+    }
+});
+
+app.get('/api/admin/stats', async (req, res) => {
+    if (req.cookies[ADMIN_COOKIE] !== 'valid_admin') {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const stats = await db.getAdminStats();
+    res.json(stats);
 });
 
 // --- Task Routes ---
